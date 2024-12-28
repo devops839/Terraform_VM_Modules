@@ -1,0 +1,44 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Terraform_vm_creation
+  displayName: "Terraform_vm_creation"
+  jobs:
+  - job: Terraform_vm_creation
+    displayName: "Terraform_vm_creation"
+    steps:
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: '1.5.0'
+
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: 'Private_VM/vm1'
+        backendServiceArm: 'azure_sc'
+        backendAzureRmResourceGroupName: 'vault-rg'
+        backendAzureRmStorageAccountName: 'demosaterraform'
+        backendAzureRmContainerName: 'tf839'
+        backendAzureRmKey: 'demo3.terraform.tfstate'
+      displayName: "Terraform Init"
+
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: 'Private_VM/vm1'
+        environmentServiceNameAzureRM: 'azure_sc'
+      displayName: "Terraform Plan"
+      
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: 'Private_VM/vm1'
+        commandOptions: '--auto-approve'
+        environmentServiceNameAzureRM: 'azure_sc'
+      displayName: "Terraform Apply"
