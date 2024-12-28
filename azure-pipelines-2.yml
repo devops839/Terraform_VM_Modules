@@ -1,0 +1,62 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  ARM_SUBSCRIPTION_ID: "142ced07-dc62-4882-a02f-d99696ac9d8c"
+  ARM_CLIENT_ID: "f8856110-e4e7-4dab-9753-2e083b442da1"
+  ARM_CLIENT_SECRET: "wET8Q~-lYl~NTntiq~.crcnjCAP.sRyxOHK-SaUe"
+  ARM_TENANT_ID: "6b5f9def-9149-4426-9845-71dfc64b9b13"
+
+steps:
+- task: TerraformInstaller@1
+  inputs:
+    terraformVersion: '1.5.0'
+
+# Initialize Terraform with the Azure service connection
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: 'Import_VMs'
+    backendServiceArm: 'azure_sc'
+    backendAzureRmResourceGroupName: 'demorg'
+    backendAzureRmStorageAccountName: 'demosaterraform'
+    backendAzureRmContainerName: 'tf839'
+    backendAzureRmKey: 'demo.terraform.tfstate'
+  displayName: 'Terraform Init'
+
+# Import existing resources manually using terraform import command
+- script: |
+    export ARM_SUBSCRIPTION_ID=$(ARM_SUBSCRIPTION_ID)
+    export ARM_CLIENT_ID=$(ARM_CLIENT_ID)
+    export ARM_CLIENT_SECRET=$(ARM_CLIENT_SECRET)
+    export ARM_TENANT_ID=$(ARM_TENANT_ID)
+    
+    cd Import_VMs
+    terraform import azurerm_resource_group.demorg /subscriptions/142ced07-dc62-4882-a02f-d99696ac9d8c/resourceGroups/demorg
+    terraform import azurerm_virtual_network.demovnet /subscriptions/142ced07-dc62-4882-a02f-d99696ac9d8c/resourceGroups/demorg/providers/Microsoft.Network/virtualNetworks/demovnet
+    terraform import azurerm_subnet.subnet1 /subscriptions/142ced07-dc62-4882-a02f-d99696ac9d8c/resourceGroups/demorg/providers/Microsoft.Network/virtualNetworks/demovnet/subnets/subnet1
+    terraform import azurerm_network_interface.nic /subscriptions/142ced07-dc62-4882-a02f-d99696ac9d8c/resourceGroups/demorg/providers/Microsoft.Network/networkInterfaces/demovm671
+    terraform import azurerm_linux_virtual_machine.vm /subscriptions/142ced07-dc62-4882-a02f-d99696ac9d8c/resourceGroups/demorg/providers/Microsoft.Compute/virtualMachines/demovm
+  displayName: 'Terraform Import Existing Resources'
+
+# Run Terraform Plan
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: 'Import_VMs'
+    environmentServiceNameAzureRM: 'azure_sc'
+  displayName: 'Terraform Plan'
+
+# Apply the changes with Terraform
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    workingDirectory: 'Import_VMs'
+    environmentServiceNameAzureRM: 'azure_sc'
+    args: '-auto-approve'
+  displayName: 'Terraform Apply'
