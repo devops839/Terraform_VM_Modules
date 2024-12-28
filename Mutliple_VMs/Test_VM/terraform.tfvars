@@ -1,0 +1,8 @@
+rg = "demo-rg"
+location = "East US"
+vnet = "demo-vnet"
+subnet = "demo-subnet"
+nic = "demo-nic"
+vm_name = "demo-vm"
+admin_username = "vmadmin"
+admin_password = "vmadmin@1234"

@@ -1,0 +1,8 @@
+resource_group_name  = "vault-rg"
+location             = "East US"
+virtual_network_name = "demo3-vnet"
+subnet_name          = "demo3-subnet"
+nic_name             = "demo3-nic"
+vm_name              = "demo3-vm"
+vm_disk_name         = "demo3-vm-disk"
+//key_vault_id = "/subscriptions/142ced07-dc62-4882-a02f-d99696ac9d8c/resourceGroups/vault-rg/providers/Microsoft.KeyVault/vaults/demo-vault839"

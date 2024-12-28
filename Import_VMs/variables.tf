@@ -1,0 +1,11 @@
+variable "resource_group_name" {}
+variable "location" {}
+variable "vnet_name" {}
+variable "vnet_address_space" {}
+variable "subnet_name" {}
+variable "subnet_address_prefixes" {}
+variable "nic_name" {}
+variable "vm_name" {}
+variable "vm_size" {}
+variable "vm_admin_username" {}
+variable "vm_admin_password" {}
